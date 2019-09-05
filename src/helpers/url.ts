@@ -1,4 +1,4 @@
-import { isDate, isObject } from './util';
+import { isDate, isPlainObject } from './util';
 
 function encode(val: string): string {
     // 将URL内容进行编码，但是将以下符号转换回来不编码
@@ -51,7 +51,7 @@ export function buildURL(url: string, params?: any): string {
         values.forEach((val) => {
             if (isDate(val)) {
                 val = val.toISOString();
-            } else if (isObject(val)) {
+            } else if (isPlainObject(val)) {
                 val = JSON.stringify(val);
             }
             parts.push(`${encode(key)}=${encode(val)}`)
