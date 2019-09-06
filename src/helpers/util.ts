@@ -11,3 +11,11 @@ export function isObject(val: any): val is Object {
 export function isPlainObject(val: any): val is Object {
     return toString.call(val) === '[object Object]';
 }
+
+export function extend<T, U>(to: T, from: U): T & U {
+    for(const key in from) {
+        // 括号开始一行，前面加分号
+        ;(to as T & U)[key] = from[key] as any;
+    }
+    return to as T & U;
+}
