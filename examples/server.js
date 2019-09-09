@@ -33,6 +33,8 @@ registerErrorRouter();
 
 registerExtendRouter();
 
+registerInterceptorRouter();
+
 app.use(router);
 
 const port = process.env.PORT || 8888;
@@ -99,29 +101,46 @@ function registerExtendRouter() {
         res.json({
             msg: 'hello world'
         })
-    })
+    });
 
     router.options('/extend/options', function (req, res) {
         res.end()
-    })
+    });
 
     router.delete('/extend/delete', function (req, res) {
         res.end()
-    })
+    });
 
     router.head('/extend/head', function (req, res) {
         res.end()
-    })
+    });
 
     router.post('/extend/post', function (req, res) {
         res.json(req.body)
-    })
+    });
 
     router.put('/extend/put', function (req, res) {
         res.json(req.body)
-    })
+    });
 
     router.patch('/extend/patch', function (req, res) {
         res.json(req.body)
-    })
+    });
+
+    router.get('/extend/user', function(req, res) {
+        res.json({
+            code: 0,
+            message: 'ok',
+            result: {
+                name: 'jack',
+                age: 18
+            }
+        });
+    });
+}
+
+function registerInterceptorRouter() {
+    router.get('/interceptor/get', function(req, res) {
+        res.end('hello');
+    });
 }
