@@ -52,7 +52,7 @@ stratKeysFromVal2.forEach(key => {
 });
 
 // 需要深度拷贝的属性
-const stratKeysDeepMerge = ['headers'];
+const stratKeysDeepMerge = ['headers', 'auth'];
 stratKeysDeepMerge.forEach(key => {
     strats[key] = deepMergeStrat;
 });

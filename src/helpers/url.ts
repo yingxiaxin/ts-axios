@@ -1,16 +1,47 @@
 import { isDate, isPlainObject } from './util';
 
+/** 判断是否是同域请求 */
+
+interface URLOrigin {
+    protocol: string;
+    host: string;
+}
+
+/**
+ * 判断是否同源请求
+ * @param requestURL 请求的URL
+ */
+export function isURLSameOrigin(requestURL: string): boolean {
+    const parsedOrigin = resolveURL(requestURL);
+    return (parsedOrigin.protocol === currentOrigin.protocol && parsedOrigin.host === currentOrigin.host);
+}
+
+// 通过创建一个a标签，设置a标签的href属性为某个url，直接从a标签的protocol和host属性中读书协议、域名端口
+// protocol表示协议如，'http:'
+// host表示域名端口如，'127.0.0.1:8080'
+const urlParsingNode = document.createElement('a');
+const currentOrigin = resolveURL(window.location.href);
+
+function resolveURL(url: string): URLOrigin {
+    urlParsingNode.setAttribute('href', url);
+    const { protocol, host } = urlParsingNode;
+    return {
+        protocol,
+        host
+    };
+}
+
 function encode(val: string): string {
     // 将URL内容进行编码，但是将以下符号转换回来不编码
     // 带字母的部分正则加i标记不区分大小写
     return encodeURIComponent(val)
-    .replace(/%40/g, '@')
-    .replace(/%3A/ig, ':')
-    .replace(/%24/g, '$')
-    .replace(/%2C/ig, ',')
-    .replace(/%20/g, '+')
-    .replace(/%5B/ig, '[')
-    .replace(/%5D/ig, ']');
+        .replace(/%40/g, '@')
+        .replace(/%3A/ig, ':')
+        .replace(/%24/g, '$')
+        .replace(/%2C/ig, ',')
+        .replace(/%20/g, '+')
+        .replace(/%5B/ig, '[')
+        .replace(/%5D/ig, ']');
 }
 
 /**
