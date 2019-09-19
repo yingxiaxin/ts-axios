@@ -1,8 +1,8 @@
 {
   "name": "ts-axios-yxx",
-  "version": "0.0.0",
-  "description": "",
-  "keywords": [],
+  "version": "1.0.0",
+  "description": "a axios library wirtten in typescript",
+  "keywords": ["axios", "typescript"],
   "main": "dist/axios.umd.js",
   "module": "dist/axios.es5.js",
   "typings": "dist/types/axios.d.ts",
