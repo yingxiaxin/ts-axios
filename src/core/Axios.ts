@@ -42,6 +42,9 @@ export default class Axios {
         // 合并传入的配置和默认配置
         config = mergeConfig(this.defaults, config);
 
+        // 将method转换成小写
+        config.method = (config.method as string).toLowerCase();
+
         // 定义拦截器调用链的初始值，初始的时候没有拦截器，里面只有默认要做的事情，就是dispatchRequest
         const chain: PromiseChain<any>[] = [
             {

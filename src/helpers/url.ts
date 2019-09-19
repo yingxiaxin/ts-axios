@@ -124,7 +124,7 @@ export function isAbsoluteURL(url: string): boolean {
     // 正则匹配字母开头，后面可以是0个或多个字母、数字、加号'+'、减号'-'、点号'.'，再跟冒号':'。这部分可能有也可能没有，所以跟问号表示0或1个
     // 斜线需要转义
     // 需要忽略大小写，正则表达式跟i标识符
-    return /(^[a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
+    return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 }
 
 /**
