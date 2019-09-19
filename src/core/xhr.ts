@@ -20,6 +20,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
             onDownloadProgress,
             onUploadProgress,
             auth,
+            validateStatus,
         } = config;
 
         const request = new XMLHttpRequest();
@@ -155,7 +156,9 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
 
         /** 根据status状态码，决定是resolve或者reject */
         function handleResponse(response: AxiosResponse): void {
-            if (response.status >= 200 && response.status < 300) {
+            // validateStatus有默认值，如果使用者传入配置将其改为了null那么说明使用者希望所有的请求都视为合法的
+            // 或者validateStatus返回为true，也视为合法。resolve返回结果
+            if (!validateStatus || validateStatus(response.status)) {
                 resolve(response);
             } else {
                 reject(createError(`Request failed with status code ${response.status}`, config, null, request, response));

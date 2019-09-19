@@ -1,4 +1,4 @@
-import { isDate, isPlainObject } from './util';
+import { isDate, isPlainObject, isURLSearchParams } from './util';
 
 /** 判断是否是同域请求 */
 
@@ -57,39 +57,48 @@ function encode(val: string): string {
  * @param url axios请求的url地址
  * @param params 请求的参数
  */
-export function buildURL(url: string, params?: any): string {
+export function buildURL(url: string, params?: any, paramsSerializer?: (params: any) => string): string {
     if (!params) {
         return url;
     }
 
-    const parts: string[] = [];
+    let serializedParams
 
-    Object.keys(params).forEach(key => {
-        const val = params[key];
-        // 如果属性的值是null，或者undefined，url中不会带上这个参数，直接跳过
-        if (val === null || typeof val === 'undefined') {
-            return;
-        }
-        let values = [];
-        // 如果属性的值是一个数组，那么url中key的后面要跟上'[]'
-        if (Array.isArray(val)) {
-            values = val;
-            key += '[]';
-        } else {
-            // 如果属性值不是数组，那么将它变成数组，方便处理
-            values = [val];
-        }
-        values.forEach((val) => {
-            if (isDate(val)) {
-                val = val.toISOString();
-            } else if (isPlainObject(val)) {
-                val = JSON.stringify(val);
+    if (paramsSerializer) {
+        serializedParams = paramsSerializer(params);
+    } else if (isURLSearchParams(params)) {
+        serializedParams = params.toString();
+    } else {
+        const parts: string[] = [];
+
+        Object.keys(params).forEach(key => {
+            const val = params[key];
+            // 如果属性的值是null，或者undefined，url中不会带上这个参数，直接跳过
+            if (val === null || typeof val === 'undefined') {
+                return;
             }
-            parts.push(`${encode(key)}=${encode(val)}`)
+            let values = [];
+            // 如果属性的值是一个数组，那么url中key的后面要跟上'[]'
+            if (Array.isArray(val)) {
+                values = val;
+                key += '[]';
+            } else {
+                // 如果属性值不是数组，那么将它变成数组，方便处理
+                values = [val];
+            }
+            values.forEach((val) => {
+                if (isDate(val)) {
+                    val = val.toISOString();
+                } else if (isPlainObject(val)) {
+                    val = JSON.stringify(val);
+                }
+                parts.push(`${encode(key)}=${encode(val)}`)
+            });
         });
-    });
 
-    let serializedParams = parts.join('&');
+        serializedParams = parts.join('&');
+    }
+
     // 如果上面的处理结果是空数组，那么join后是空字符串，不处理
     // 同时如果url里有哈希值，即myUrl#hash形式，哈希后面的是页面内锚点或跳转，不需要在请求url中跟上
     if (serializedParams) {
@@ -103,4 +112,27 @@ export function buildURL(url: string, params?: any): string {
     }
 
     return url;
+}
+
+/**
+ * 判断一个url是否是绝对地址
+ * @param url URL地址
+ */
+export function isAbsoluteURL(url: string): boolean {
+    // 正则含义：
+    // 绝对地址的url，以类似'http:'或'https:'开头，后面跟两个斜线'//'；也可以直接两个斜线开头
+    // 正则匹配字母开头，后面可以是0个或多个字母、数字、加号'+'、减号'-'、点号'.'，再跟冒号':'。这部分可能有也可能没有，所以跟问号表示0或1个
+    // 斜线需要转义
+    // 需要忽略大小写，正则表达式跟i标识符
+    return /(^[a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
+}
+
+/**
+ * 将基础URL和相对路径URL拼成完整的URL
+ * @param baseURL 基础URL
+ * @param relativeURL 相对路径URL
+ */
+export function combineURL(baseURL: string, relativeURL?: string): string {
+    // 拼接时，删除baseURL末尾的斜线'/'，以及relativeURL开头的斜线'/'，两个再以斜线'/'拼接
+    return relativeURL ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '') : baseURL;
 }

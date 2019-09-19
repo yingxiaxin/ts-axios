@@ -7,22 +7,25 @@ export type Method = 'get' | 'GET'
     | 'patch' | 'PATCH';
 
 export interface AxiosRequestConfig {
-    url?: string;
-    method?: Method;
-    data?: any;
-    params?: any;
-    headers?: any;
-    responseType?: XMLHttpRequestResponseType;
-    timeout?: number;
-    transformRequest?: AxiosTransformer | AxiosTransformer[];
-    transformResponse?: AxiosTransformer | AxiosTransformer[];
-    cancelToken?: CancelToken;
-    withCredentials?: boolean;
-    xsrfCookieName?: string;
-    xsrfHeaderName?: string;
-    onDownloadProgress?: (event: ProgressEvent) => void;
-    onUploadProgress?: (event: ProgressEvent) => void;
-    auth?: AxiosBasicCredentials;
+    url?: string;                                                           // url地址
+    method?: Method;                                                        // 请求方式
+    data?: any;                                                             // 请求数据
+    params?: any;                                                           // 请求参数
+    headers?: any;                                                          // 请求头设置
+    responseType?: XMLHttpRequestResponseType;                              // 接收的返回数据类型
+    timeout?: number;                                                       // 超时时间设置
+    transformRequest?: AxiosTransformer | AxiosTransformer[];               // 请求之前进行转换的转换函数或转换函数数组
+    transformResponse?: AxiosTransformer | AxiosTransformer[];              // 响应给出去之前进行结果转换的转换函数或转换函数数组
+    cancelToken?: CancelToken;                                              // 取消请求
+    withCredentials?: boolean;                                              // 是否自动携带cookie
+    xsrfCookieName?: string;                                                // 服务端生成的token在cookie中的名字
+    xsrfHeaderName?: string;                                                // 服务端token在请求时携带在header里的哪个属性下
+    onDownloadProgress?: (event: ProgressEvent) => void;                    // 文件下载处理函数
+    onUploadProgress?: (event: ProgressEvent) => void;                      // 文件上传处理函数
+    auth?: AxiosBasicCredentials;                                           // HTTP授权 auth: {username: 'xxx', password: 'xxxx'}
+    validateStatus?: (status: number) => boolean;                           // 自定义合法状态码，是一个函数，表示哪些状态码视为合法不抛错
+    paramsSerializer?: (params: any) => string;                             // 自定义的参数序列化函数
+    baseURL?: string;                                                       // 基础URL
     [propName: string]: any;
 }
 
@@ -70,6 +73,8 @@ export interface Axios {
     put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>;
 
     patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise<T>;
+
+    getUri(config?: AxiosRequestConfig): string;
 }
 
 export interface AxiosInstance extends Axios {
@@ -78,12 +83,18 @@ export interface AxiosInstance extends Axios {
     <T = any>(url: string, config?: AxiosRequestConfig): AxiosPromise<T>;
 }
 
+export interface AxiosClassStatic {
+    new(config: AxiosRequestConfig): Axios;
+}
+
 export interface AxiosStatic extends AxiosInstance {
     create(config?: AxiosRequestConfig): AxiosInstance;
-
     CancelToken: CancelTokenStatic;
     Cancel: CancelStatic;
     isCancel: (value: any) => boolean;
+    all<T>(promises: Array<T | Promise<T>>): Promise<T[]>;
+    spread<T, R>(callback: (...args: T[]) => R): (arr: T[]) => R;
+    Axios: AxiosClassStatic;
 }
 
 export interface AxiosInterceptorManager<T> {
@@ -124,7 +135,7 @@ export interface CancelTokenSource {
 }
 
 export interface CancelTokenStatic {
-    new (executor: CancelExecutor): CancelToken;
+    new(executor: CancelExecutor): CancelToken;
     source(): CancelTokenSource;
 }
 
@@ -133,7 +144,7 @@ export interface Cancel {
 }
 
 export interface CancelStatic {
-    new (message?: string): Cancel;
+    new(message?: string): Cancel;
 }
 
 export interface AxiosBasicCredentials {
